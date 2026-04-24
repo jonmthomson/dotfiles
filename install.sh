@@ -15,8 +15,8 @@ fi
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 if ! command -v node &> /dev/null; then
-  echo "Installing Node.js LTS..."
-  nvm install --lts
+  echo "Installing Node.js v22..."
+  nvm install 22
 fi
 
 echo "Node version: $(node --version)"
