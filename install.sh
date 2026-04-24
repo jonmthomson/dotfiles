@@ -14,10 +14,8 @@ fi
 # Load nvm
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-if ! command -v node &> /dev/null; then
-  echo "Installing Node.js v22..."
-  nvm install 22
-fi
+echo "Installing Node.js v22..."
+nvm install 22
 
 echo "Node version: $(node --version)"
 
