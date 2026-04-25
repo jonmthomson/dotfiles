@@ -21,7 +21,7 @@ nvm install 22
 echo "Node version: $(node --version)"
 
 # --- npm global prefix (keeps global installs in a known location) ---
-npm config set prefix "$HOME/.npm-global"
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
 # --- pi coding agent ---
@@ -46,6 +46,7 @@ cat >> "$BASHRC" << 'EOF'
 export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
 # == end personal devcontainer setup ==
 EOF
