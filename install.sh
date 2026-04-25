@@ -4,6 +4,7 @@ set -e
 echo "=== Personal devcontainer setup starting ==="
 
 # --- nvm + Node.js ---
+export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 export NVM_DIR="$HOME/.nvm"
 
 if [ ! -d "$NVM_DIR" ]; then
@@ -40,6 +41,7 @@ if ! grep -q '# == personal devcontainer setup ==' "$BASHRC" 2>/dev/null; then
   cat >> "$BASHRC" << 'EOF'
 
 # == personal devcontainer setup ==
+export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 export PATH="$HOME/.npm-global/bin:$PATH"
