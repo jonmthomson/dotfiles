@@ -37,17 +37,18 @@ echo "Pi version: $(pi --version 2>/dev/null || echo 'installed')"
 # every new terminal, not just the install session.
 BASHRC="$HOME/.bashrc"
 
-if ! grep -q '# == personal devcontainer setup ==' "$BASHRC" 2>/dev/null; then
-  cat >> "$BASHRC" << 'EOF'
+# Remove old block and rewrite it
+sed -i '/# == personal devcontainer setup ==/,/# == end personal devcontainer setup ==/d' "$BASHRC" 2>/dev/null || true
+
+cat >> "$BASHRC" << 'EOF'
 
 # == personal devcontainer setup ==
 export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-export PATH="$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
 # == end personal devcontainer setup ==
 EOF
-fi
 
 # --- Pi config files ---
 # Copy pi config from dotfiles repo into ~/.pi/agent/ if present.
