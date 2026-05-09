@@ -124,6 +124,23 @@ hash -r 2>/dev/null || true
 echo "Pi path: $(command -v pi || echo 'not found')"
 echo "Pi version: $(pi --version 2>/dev/null || echo 'installed')"
 
+
+# -----------------------------------------------------------------------------
+# just (via npm rust-just)
+# -----------------------------------------------------------------------------
+if ! command -v just >/dev/null 2>&1; then
+  echo "Installing just (rust-just) into nvm-managed global npm location..."
+  npm install -g rust-just
+else
+  echo "just already installed at: $(command -v just)"
+fi
+
+hash -r 2>/dev/null || true
+
+echo "just path: $(command -v just || echo 'not found')"
+echo "just version: $(just --version 2>/dev/null || echo 'installed')"
+
+
 # -----------------------------------------------------------------------------
 # Shell config
 # -----------------------------------------------------------------------------
