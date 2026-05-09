@@ -11,12 +11,10 @@ echo "=== Personal devcontainer setup starting ==="
 PERSIST_ROOT="$HOME/.bash_backup/pi-dev"
 
 PERSIST_NVM="$PERSIST_ROOT/nvm"
-PERSIST_NPM_GLOBAL="$PERSIST_ROOT/npm-global"
 PERSIST_PI="$PERSIST_ROOT/pi"
 
 mkdir -p "$PERSIST_ROOT"
 mkdir -p "$PERSIST_NVM"
-mkdir -p "$PERSIST_NPM_GLOBAL"
 mkdir -p "$PERSIST_PI"
 
 echo "Using persistent personal storage at: $PERSIST_ROOT"
@@ -64,8 +62,12 @@ link_persistent_dir() {
 }
 
 # Persist the main mutable directories.
+#
+# Note:
+# We intentionally do NOT persist ~/.npm-global.
+# With nvm, global npm packages live under ~/.nvm/versions/node/<version>/,
+# so persisting ~/.nvm also persists global npm packages.
 link_persistent_dir "$PERSIST_NVM" "$HOME/.nvm"
-link_persistent_dir "$PERSIST_NPM_GLOBAL" "$HOME/.npm-global"
 link_persistent_dir "$PERSIST_PI" "$HOME/.pi"
 
 # -----------------------------------------------------------------------------
@@ -73,6 +75,10 @@ link_persistent_dir "$PERSIST_PI" "$HOME/.pi"
 # -----------------------------------------------------------------------------
 export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 export NVM_DIR="$HOME/.nvm"
+
+# nvm is not compatible with NPM_CONFIG_PREFIX.
+# Make sure it is not set in this install session.
+unset NPM_CONFIG_PREFIX
 
 if [ ! -s "$NVM_DIR/nvm.sh" ]; then
   echo "Installing nvm into persistent storage..."
@@ -89,31 +95,39 @@ nvm use 22
 
 echo "Node version: $(node --version)"
 echo "npm version: $(npm --version)"
+echo "npm global prefix: $(npm prefix -g)"
 
 # -----------------------------------------------------------------------------
-# npm global prefix
+# PATH
 # -----------------------------------------------------------------------------
-export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
+# Do not add ~/.npm-global/bin here.
+# nvm adds the active Node version's bin directory to PATH when nvm use/default
+# is applied. Keep ~/.local/bin for personal user tools.
+export PATH="$HOME/.local/bin:$PATH"
 
-mkdir -p "$NPM_CONFIG_PREFIX/bin"
+# Clear bash's command lookup cache in case pi previously resolved from
+# ~/.npm-global/bin in this shell.
+hash -r 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 # pi coding agent
 # -----------------------------------------------------------------------------
 if ! command -v pi >/dev/null 2>&1; then
-  echo "Installing pi coding agent into persistent npm-global..."
-  npm install -g @mariozechner/pi-coding-agent
+  echo "Installing pi coding agent into nvm-managed global npm location..."
+  npm install -g @earendil-works/pi-coding-agent
 else
   echo "pi coding agent already installed at: $(command -v pi)"
 fi
 
+hash -r 2>/dev/null || true
+
+echo "Pi path: $(command -v pi || echo 'not found')"
 echo "Pi version: $(pi --version 2>/dev/null || echo 'installed')"
 
 # -----------------------------------------------------------------------------
 # Shell config
 # -----------------------------------------------------------------------------
-# Ensure nvm, npm-global, and pi are available in every new bash terminal.
+# Ensure nvm and pi are available in every new bash terminal.
 BASHRC="$HOME/.bashrc"
 
 # Remove old block and rewrite it.
@@ -124,13 +138,19 @@ cat >> "$BASHRC" << 'EOF'
 # == personal devcontainer setup ==
 export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
-# Persistent nvm install
+# Persistent nvm install.
+# Global npm packages are intentionally managed by nvm and therefore live under:
+#   ~/.nvm/versions/node/<version>/
 export NVM_DIR="$HOME/.nvm"
+
+# nvm is not compatible with NPM_CONFIG_PREFIX.
+unset NPM_CONFIG_PREFIX
+
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-# Persistent npm globals
-export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
+# Personal user binaries.
+# Do not add ~/.npm-global/bin here.
+export PATH="$HOME/.local/bin:$PATH"
 # == end personal devcontainer setup ==
 EOF
 
@@ -152,8 +172,7 @@ EOF
 # fi
 
 echo "Persistent locations:"
-echo "  nvm:        $PERSIST_NVM"
-echo "  npm-global: $PERSIST_NPM_GLOBAL"
-echo "  pi:         $PERSIST_PI"
+echo "  nvm: $PERSIST_NVM"
+echo "  pi:  $PERSIST_PI"
 
 echo "=== Personal devcontainer setup complete ==="
