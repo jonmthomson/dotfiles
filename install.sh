@@ -121,6 +121,20 @@ fi
 
 hash -r 2>/dev/null || true
 
+# ---------------------------------------------------------------------
+# Make pi globally accessible (no shell init required)
+# ---------------------------------------------------------------------
+PI_PATH="$(command -v pi || true)"
+
+if [ -n "$PI_PATH" ]; then
+  echo "Linking pi into /usr/local/bin..."
+  sudo ln -sf "$PI_PATH" /usr/local/bin/pi
+
+  echo "Global pi path: $(command -v pi)"
+else
+  echo "Warning: pi not found after installation"
+fi
+
 echo "Pi path: $(command -v pi || echo 'not found')"
 echo "Pi version: $(pi --version 2>/dev/null || echo 'installed')"
 
