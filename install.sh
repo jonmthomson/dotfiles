@@ -156,6 +156,24 @@ echo "just version: $(just --version 2>/dev/null || echo 'installed')"
 
 
 # -----------------------------------------------------------------------------
+# GitLab CLI (glab)
+# -----------------------------------------------------------------------------
+if ! command -v glab >/dev/null 2>&1; then
+  echo "Installing GitLab CLI (glab) via apt..."
+
+  sudo apt-get update
+  sudo apt-get install -y glab
+else
+  echo "GitLab CLI already installed at: $(command -v glab)"
+fi
+
+hash -r 2>/dev/null || true
+
+echo "glab path: $(command -v glab || echo 'not found')"
+echo "glab version: $(glab --version 2>/dev/null || echo 'installed')"
+
+
+# -----------------------------------------------------------------------------
 # Shell config
 # -----------------------------------------------------------------------------
 # Ensure nvm and pi are available in every new bash terminal.
